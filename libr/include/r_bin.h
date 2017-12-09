@@ -201,7 +201,7 @@ typedef struct r_bin_object_t {
 	ut64 boffset;
 	ut64 size;
 	ut64 obj_size;
-	RList/*<RBinSection>*/ *sections;
+	//RList/*<RBinSection>*/ *sections;
 	RList/*<RBinImport>*/ *imports;
 	RList/*<RBinSymbol>*/ *symbols;
 	RList/*<??>*/ *entries;
@@ -345,7 +345,7 @@ typedef struct r_bin_plugin_t {
 	ut64 (*boffset)(RBinFile *arch);
 	RBinAddr* (*binsym)(RBinFile *arch, int num);
 	RList/*<RBinAddr>*/* (*entries)(RBinFile *arch);
-	RList/*<RBinSection>*/* (*sections)(RBinFile *arch);
+	//RList/*<RBinSection>*/* (*sections)(RBinFile *arch);
 	RList/*<RBinDwarfRow>*/* (*lines)(RBinFile *arch);
 	RList/*<RBinSymbol>*/* (*symbols)(RBinFile *arch);
 	RList/*<RBinImport>*/* (*imports)(RBinFile *arch);
@@ -373,6 +373,7 @@ typedef struct r_bin_plugin_t {
 	void *user;
 } RBinPlugin;
 
+/***
 typedef struct r_bin_section_t {
 	char name[R_BIN_SIZEOF_STRINGS + 1]; // TODO: must be char*
 	ut64 size;
@@ -388,6 +389,7 @@ typedef struct r_bin_section_t {
 	bool add; // indicates when you want to add the section to io `S` command
 	bool is_data;
 } RBinSection;
+***/
 
 typedef struct r_bin_class_t {
 	char *name;
@@ -401,8 +403,8 @@ typedef struct r_bin_class_t {
 	int visibility;
 } RBinClass;
 
-#define RBinSectionName r_offsetof(RBinSection, name)
-#define RBinSectionOffset r_offsetof(RBinSection, offset)
+//#define RBinSectionName r_offsetof(RBinSection, name)
+//#define RBinSectionOffset r_offsetof(RBinSection, offset)
 // usage:
 // r_list_get_by_name(bin->sections, RBinSectionName, ".text");
 // bin.sections.get_by_name(SectionName, ".text");
@@ -511,7 +513,7 @@ typedef struct r_bin_write_t {
 typedef int (*RBinGetOffset)(RBin *bin, int type, int idx);
 typedef const char *(*RBinGetName)(RBin *bin, int type, int idx);
 typedef RList *(*RBinGetSections)(RBin *bin);
-typedef RBinSection *(*RBinGetSectionAt)(RBin *bin, ut64 addr);
+//typedef RBinSection *(*RBinGetSectionAt)(RBin *bin, ut64 addr);
 
 typedef struct r_bin_bind_t {
 	RBin *bin;
@@ -596,7 +598,7 @@ R_API void r_bin_class_free(RBinClass *c);
 R_API RBinSymbol *r_bin_class_add_method (RBinFile *binfile, const char *classname, const char *name, int nargs);
 R_API void r_bin_class_add_field (RBinFile *binfile, const char *classname, const char *name);
 
-R_API RBinSection* r_bin_get_section_at(RBinObject *o, ut64 off, int va);
+//R_API RBinSection* r_bin_get_section_at(RBinObject *o, ut64 off, int va);
 R_API RList* r_bin_get_strings(RBin *bin);
 R_API int r_bin_is_string(RBin *bin, ut64 va);
 R_API RList* r_bin_reset_strings(RBin *bin);

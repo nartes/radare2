@@ -295,7 +295,7 @@ static int rabin_dump_symbols(int len) {
 static int rabin_dump_sections(char *scnname) {
 	RList *sections;
 	RListIter *iter;
-	RBinSection *section;
+	//RBinSection *section;
 	ut8 *buf;
 	char *ret;
 	int r;

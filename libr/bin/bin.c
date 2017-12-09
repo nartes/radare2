@@ -39,7 +39,7 @@ R_LIB_VERSION (r_bin);
 static RBinPlugin *bin_static_plugins[] = { R_BIN_STATIC_PLUGINS, NULL };
 static RBinXtrPlugin *bin_xtr_static_plugins[] = { R_BIN_XTR_STATIC_PLUGINS, NULL };
 
-static int is_data_section(RBinFile *a, RBinSection *s);
+//static int is_data_section(RBinFile *a, RBinSection *s);
 static RList *get_strings(RBinFile *a, int min, int dump);
 static void r_bin_object_delete_items(RBinObject *o);
 static void r_bin_object_free(void /*RBinObject*/ *o_);
@@ -428,13 +428,14 @@ static void get_strings_range(RBinFile *bf, RList *list, int min, ut64 from, ut6
 		return;
 	}
 	r_list_foreach (list, it, ptr) {
-		RBinSection *s = r_bin_get_section_at (bf->o, ptr->paddr, false);
+		//RBinSection *s = r_bin_get_section_at (bf->o, ptr->paddr, false);
 		if (s) {
 			ptr->vaddr = s->vaddr + (ptr->paddr - s->paddr);
 		}
 	}
 }
 
+/***
 static int is_data_section(RBinFile *a, RBinSection *s) {
 	if (s->has_strings || s->is_data) {
 		return true;
@@ -445,10 +446,11 @@ static int is_data_section(RBinFile *a, RBinSection *s) {
  	// Rust
 	return (strstr (s->name, "_const") != NULL);
 }
+***/
 
 static RList *get_strings(RBinFile *a, int min, int dump) {
 	RListIter *iter;
-	RBinSection *section;
+	//RBinSection *section;
 	RBinObject *o = a? a->o: NULL;
 	RList *ret;
 
@@ -810,7 +812,7 @@ R_API int r_bin_object_set_items(RBinFile *binfile, RBinObject *o) {
 		if (!o->sections) {
 			o->sections = cp->sections (binfile);
 		}
-		REBASE_PADDR (o, o->sections, RBinSection);
+		//REBASE_PADDR (o, o->sections, RBinSection);
 		if (bin->filter) {
 			r_bin_filter_sections (o->sections);
 		}
@@ -1868,6 +1870,7 @@ R_API RList *r_bin_get_sections(RBin *bin) {
 }
 
 // TODO: Move into section.c and rename it to r_io_section_get_at ()
+/*
 R_API RBinSection *r_bin_get_section_at(RBinObject *o, ut64 off, int va) {
 	RBinSection *section;
 	RListIter *iter;
@@ -1885,6 +1888,7 @@ R_API RBinSection *r_bin_get_section_at(RBinObject *o, ut64 off, int va) {
 	}
 	return NULL;
 }
+*/
 
 R_API RList *r_bin_reset_strings(RBin *bin) {
 	RBinFile *a = r_bin_cur (bin);
@@ -2431,10 +2435,13 @@ R_API void r_bin_set_user_ptr(RBin *bin, void *user) {
 	bin->user = user;
 }
 
+/*
 static RBinSection* _get_vsection_at(RBin *bin, ut64 vaddr) {
 	RBinObject *cur = r_bin_object_get_cur (bin);
 	return r_bin_get_section_at (cur, vaddr, true);
 }
+*/
+
 R_API void r_bin_bind(RBin *bin, RBinBind *b) {
 	if (b) {
 		b->bin = bin;
@@ -2669,7 +2676,7 @@ R_API ut64 r_bin_get_vaddr(RBin *bin, ut64 paddr, ut64 vaddr) {
 	/* hack to realign thumb symbols */
 	if (bin->cur->o && bin->cur->o->info && bin->cur->o->info->arch) {
 		if (bin->cur->o->info->bits == 16) {
-			RBinSection *s = r_bin_get_section_at (bin->cur->o, paddr, false);
+			//RBinSection *s = r_bin_get_section_at (bin->cur->o, paddr, false);
 			// autodetect thumb
 			if (s && s->srwx & 1 && strstr (s->name, "text")) {
 				if (!strcmp (bin->cur->o->info->arch, "arm") && (vaddr & 1)) {

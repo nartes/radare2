@@ -75,7 +75,7 @@ typedef struct r_io_t {
 	RIDPool *map_ids;
 	SdbList *maps; //from tail backwards maps with higher priority are found
 	RVector map_skyline; // map parts that are not covered by others
-	SdbList *sections;
+	//SdbList *sections;
 	RIDStorage *files;
 	RCache *buffer;
 	RList *cache;	//sdblist?
@@ -173,6 +173,7 @@ typedef struct r_io_map_skyline_t {
 	RAddrInterval itv;
 } RIOMapSkyline;
 
+/*
 typedef struct r_io_section_t {
 	char *name;
 	ut64 paddr;
@@ -188,12 +189,15 @@ typedef struct r_io_section_t {
 	ut32 filemap;
 	ut32 memmap;
 } RIOSection;
+*/
 
+/*
 typedef enum {
 	R_IO_SECTION_APPLY_FOR_PATCH,
 	R_IO_SECTION_APPLY_FOR_ANALYSIS,
 	R_IO_SECTION_APPLY_FOR_EMULATOR
 } RIOSectionApplyMethod;
+*/
 
 typedef struct r_io_cache_t {
 	ut64 from;
@@ -253,9 +257,9 @@ typedef void (*RIOAlSort) (RIOAccessLog *log);
 typedef void (*RIOAlFree) (RIOAccessLog *log);
 typedef ut8 *(*RIOAlGetFbufByflags) (RIOAccessLog *log, int flags, ut64 *addr, int *len);
 typedef bool (*RIOIsValidOff) (RIO *io, ut64 addr, int hasperm);
-typedef SdbList *(*RIOSectionVgetSecsAt) (RIO *io, ut64 vaddr);
-typedef RIOSection *(*RIOSectionVgetSec) (RIO *io, ut64 vaddr);
-typedef RIOSection *(*RIOSectionAdd) (RIO *io, ut64 addr, ut64 vaddr, ut64 size, ut64 vsize, int rwx, const char *name, ut32 bin_id, int fd);
+//typedef SdbList *(*RIOSectionVgetSecsAt) (RIO *io, ut64 vaddr);
+//typedef RIOSection *(*RIOSectionVgetSec) (RIO *io, ut64 vaddr);
+//typedef RIOSection *(*RIOSectionAdd) (RIO *io, ut64 addr, ut64 vaddr, ut64 size, ut64 vsize, int rwx, const char *name, ut32 bin_id, int fd);
 
 typedef struct r_io_bind_t {
 	int init;
@@ -284,9 +288,9 @@ typedef struct r_io_bind_t {
 	RIOAlFree al_free;	//needed for esil
 	RIOAlGetFbufByflags al_buf_byflags;	//needed for esil
 	RIOIsValidOff is_valid_offset;
-	RIOSectionVgetSecsAt sections_vget;
-	RIOSectionVgetSec sect_vget;
-	RIOSectionAdd section_add;
+	//RIOSectionVgetSecsAt sections_vget;
+	//RIOSectionVgetSec sect_vget;
+	//RIOSectionAdd section_add;
 } RIOBind;
 
 //map.c
@@ -417,6 +421,7 @@ R_API bool r_io_cache_write(RIO *io, ut64 addr, const ut8 *buf, int len);
 R_API bool r_io_cache_read(RIO *io, ut64 addr, ut8 *buf, int len);
 
 /* io/section.c */
+/*
 R_API void r_io_section_init (RIO *io);
 R_API void r_io_section_fini (RIO *io);
 R_API int r_io_section_exists_for_id (RIO *io, ut32 id);
@@ -442,6 +447,7 @@ R_API RIOSection* r_io_section_get(RIO *io, ut64 paddr);
 R_API RIOSection* r_io_section_vget(RIO *io, ut64 vaddr);
 R_API ut64 r_io_section_get_paddr_at(RIO *io, ut64 addr);
 R_API ut64 r_io_section_get_vaddr_at(RIO *io, ut64 addr);
+*/
 
 /* io/p_cache.c */
 R_API bool r_io_desc_cache_init (RIODesc *desc);
@@ -483,9 +489,9 @@ R_API bool r_io_use_fd (RIO *io, int fd);
 #define r_io_range_free(x)	free(x)
 
 /* io/ioutils.c */
-R_API bool r_io_create_mem_map(RIO *io, RIOSection *sec, ut64 at, bool null, bool do_skyline);
-R_API bool r_io_create_file_map(RIO *io, RIOSection *sec, ut64 size, bool patch, bool do_skyline);
-R_API bool r_io_create_mem_for_section(RIO *io, RIOSection *sec);
+//R_API bool r_io_create_mem_map(RIO *io, RIOSection *sec, ut64 at, bool null, bool do_skyline);
+//R_API bool r_io_create_file_map(RIO *io, RIOSection *sec, ut64 size, bool patch, bool do_skyline);
+//R_API bool r_io_create_mem_for_section(RIO *io, RIOSection *sec);
 R_API bool r_io_is_valid_offset (RIO *io, ut64 offset, int hasperm);
 R_API bool r_io_addr_is_mapped(RIO *io, ut64 vaddr);
 R_API bool r_io_read_i (RIO* io, ut64 addr, ut64 *val, int size, bool endian);

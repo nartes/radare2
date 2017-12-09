@@ -1209,7 +1209,7 @@ repeat:
 			}
 			if (anal->cur) {
 				/* if UJMP is in .plt section just skip it */
-				RBinSection *s = anal->binb.get_vsect_at (anal->binb.bin, addr);
+				//RBinSection *s = anal->binb.get_vsect_at (anal->binb.bin, addr);
 				if (s && s->name[0]) {
 					bool in_plt = strstr (s->name, ".plt") != NULL;
 					if (!in_plt && strstr (s->name, "_stubs") != NULL) {

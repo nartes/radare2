@@ -94,7 +94,7 @@ R_API void r_bin_filter_symbols(RList *list) {
 }
 
 R_API void r_bin_filter_sections(RList *list) {
-	RBinSection *sec;
+	//RBinSection *sec;
 	const int maxlen = 256;
 	Sdb *db = sdb_new0 ();
 	RListIter *iter;

@@ -1510,6 +1510,7 @@ static RBinDwarfDebugAbbrev *r_bin_dwarf_parse_abbrev_raw(const ut8 *obuf, size_
 	return da;
 }
 
+/*
 RBinSection *getsection(RBin *a, const char *sn) {
 	RListIter *iter;
 	RBinSection *section = NULL;
@@ -1525,12 +1526,13 @@ RBinSection *getsection(RBin *a, const char *sn) {
 	}
 	return NULL;
 }
+*/
 
 R_API int r_bin_dwarf_parse_info(RBinDwarfDebugAbbrev *da, RBin *a, int mode) {
 	ut8 *buf, *debug_str_buf = 0;
 	int len, debug_str_len = 0, ret;
-	RBinSection *debug_str;
-	RBinSection *section = getsection (a, "debug_info");
+	//RBinSection *debug_str;
+	//RBinSection *section = getsection (a, "debug_info");
 	RBinFile *binfile = a ? a->cur: NULL;
 
 	if (binfile && section) {
@@ -1592,7 +1594,7 @@ R_API RList *r_bin_dwarf_parse_line(RBin *a, int mode) {
 	ut8 *buf;
 	RList *list = NULL;
 	int len, ret;
-	RBinSection *section = getsection (a, "debug_line");
+	//RBinSection *section = getsection (a, "debug_line");
 	RBinFile *binfile = a ? a->cur: NULL;
 	if (binfile && section) {
 		len = section->size;
@@ -1652,7 +1654,7 @@ R_API RList *r_bin_dwarf_parse_aranges(RBin *a, int mode) {
 	ut8 *buf;
 	int ret;
 	size_t len;
-	RBinSection *section = getsection (a, "debug_aranges");
+	//RBinSection *section = getsection (a, "debug_aranges");
 	RBinFile *binfile = a ? a->cur: NULL;
 
 	if (binfile && section) {
@@ -1679,7 +1681,7 @@ R_API RList *r_bin_dwarf_parse_aranges(RBin *a, int mode) {
 R_API RBinDwarfDebugAbbrev *r_bin_dwarf_parse_abbrev(RBin *a, int mode) {
 	ut8 *buf;
 	size_t len;
-	RBinSection *section = getsection (a, "debug_abbrev");
+	//RBinSection *section = getsection (a, "debug_abbrev");
 	RBinDwarfDebugAbbrev *da = NULL;
 	RBinFile *binfile = a ? a->cur: NULL;
 	if (!section || !binfile) return NULL;

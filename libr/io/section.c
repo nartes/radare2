@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
 static void section_free(void *p) {
 	RIOSection *s = (RIOSection *) p;
 	if (s) {
@@ -689,3 +690,4 @@ R_API bool r_io_section_reapply_bin(RIO *io, ut32 binid, RIOSectionApplyMethod m
 	r_io_map_calculate_skyline (io);
 	return ret;
 }
+*/
