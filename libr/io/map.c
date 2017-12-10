@@ -325,8 +325,8 @@ R_API bool r_io_map_del_for_fd(RIO* io, int fd) {
 }
 
 //brings map with specified id to the tail of of the list
-//return a boolean denoting whether is was possible to priorized
-R_API bool r_io_map_priorize(RIO* io, ut32 id) {
+//return a boolean denoting whether is was possible to prioritized
+R_API bool r_io_map_prioritize(RIO* io, ut32 id) {
 	SdbListIter* iter;
 	RIOMap* map;
 	if (!io) {
@@ -344,7 +344,7 @@ R_API bool r_io_map_priorize(RIO* io, ut32 id) {
 	return false;
 }
 
-R_API bool r_io_map_priorize_for_fd(RIO* io, int fd) {
+R_API bool r_io_map_prioritize_for_fd(RIO* io, int fd) {
 	SdbListIter* iter, * ator;
 	RIOMap *map;
 	SdbList* list;

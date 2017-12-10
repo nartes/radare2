@@ -27,7 +27,7 @@ static const char *help_msg_o[] = {
 	"oo","+","reopen current file in read-write",
 	"ood"," [args]","reopen in debugger mode (with args)",
 	"oo[bnm]"," [...]","see oo? for help",
-	"op"," [fd]", "priorize given fd (see also ob)",
+	"op"," [fd]", "prioritize given fd (see also ob)",
 	"o"," 4","Switch to open file on fd 4",
 	"o","-1","close file descriptor 1",
 	"o-","!*","close all opened files",
@@ -99,10 +99,10 @@ static const char *help_msg_om[] = {
 	"omb", " mapid addr", "relocate map with corresponding id",
 	"omb.", " addr", "relocate current map",
 	"omr", " mapid newsize", "resize map with corresponding id",
-	"omp", " mapid", "priorize map with corresponding id",
-	"ompf", "[fd]", "priorize map by fd",
-	"ompb", " binid", "priorize maps of mapped bin with binid",
-	"omps", " sectionid", "priorize maps of mapped section with sectionid",
+	"omp", " mapid", "prioritize map with corresponding id",
+	"ompf", "[fd]", "prioritize map by fd",
+	"ompb", " binid", "prioritize maps of mapped bin with binid",
+	"omps", " sectionid", "prioritize maps of mapped section with sectionid",
 	"om*", "", "show r2 commands to restore mapaddr",
 	NULL
 };
@@ -584,26 +584,26 @@ static void cmd_open_map(RCore *core, const char *input) {
 		switch (input[2]) {
 		case 'f': // "ompf"
 			fd = r_num_math (core->num, input + 3);
-			if (!r_io_map_priorize_for_fd (core->io, (int)fd)) {
-				eprintf ("Cannot priorize any map for fd %d\n", (int)fd);
+			if (!r_io_map_prioritize_for_fd (core->io, (int)fd)) {
+				eprintf ("Cannot prioritize any map for fd %d\n", (int)fd);
 			}
 			break;
 		case 'b': // "ompb"
 			id = (ut32)r_num_math (core->num, input + 4);
-			if (!r_io_section_priorize_bin (core->io, id)) {
-				eprintf ("Cannot priorize bin with binid %d\n", id);
+			if (!r_io_section_prioritize_bin (core->io, id)) {
+				eprintf ("Cannot prioritize bin with binid %d\n", id);
 			}
 			break;
 		case 's': // "omps"
 			id = (ut32)r_num_math (core->num, input + 4);
-			if (!r_io_section_priorize (core->io, id)) {
-				eprintf ("Cannot priorize section with sectionid %d\n", id);
+			if (!r_io_section_prioritize (core->io, id)) {
+				eprintf ("Cannot prioritize section with sectionid %d\n", id);
 			}
 			break;
 		case ' ': // "omp"
 			id = r_num_math (core->num, input + 3);		//mapid
 			if (r_io_map_exists_for_id (core->io, id)) {
-				r_io_map_priorize (core->io, id);
+				r_io_map_prioritize (core->io, id);
 			} else {
 				eprintf ("Cannot find any map with mapid %d\n", id);
 			}
@@ -1038,7 +1038,7 @@ static int cmd_open(void *data, const char *input) {
 		r_str_argv_free (argv);
 		return 0;
 	case 'p': // "op"
-		/* handle priorize */
+		/* handle prioritize */
 		{
 			int fd = r_num_math (core->num, input + 1);
 			if (fd) {

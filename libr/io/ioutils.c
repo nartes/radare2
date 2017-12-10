@@ -105,7 +105,7 @@ R_API bool r_io_addr_is_mapped(RIO *io, ut64 vaddr) {
 	return false;
 }
 
-// when io.va is true this checks if the highest priorized map at this
+// when io.va is true this checks if the highest prioritized map at this
 // offset has the same or high permissions set. When there is no map it
 // check for the current desc permissions and size.
 // when io.va is false it only checks for the desc

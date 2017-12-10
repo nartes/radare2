@@ -345,7 +345,7 @@ R_API int r_io_section_bin_set_archbits(RIO *io, ut32 bin_id, const char *arch, 
 	return true;
 }
 
-R_API bool r_io_section_priorize(RIO *io, ut32 id) {
+R_API bool r_io_section_prioritize(RIO *io, ut32 id) {
 	SdbListIter *iter, *niter;
 	RIOSection *sec;
 	bool ret = false;
@@ -368,18 +368,18 @@ R_API bool r_io_section_priorize(RIO *io, ut32 id) {
 		return false;
 	}
 	if (sec->filemap) {
-		ret = r_io_map_priorize (io, sec->filemap);
+		ret = r_io_map_prioritize (io, sec->filemap);
 		if (!sec->memmap) {
 			return ret; 
 		}
 	}
 	if (!(sec->filemap == sec->memmap)) {
-		return ret & r_io_map_priorize (io, sec->memmap);
+		return ret & r_io_map_prioritize (io, sec->memmap);
 	}
 	return false;
 }
 
-R_API bool r_io_section_priorize_bin(RIO *io, ut32 bin_id) {
+R_API bool r_io_section_prioritize_bin(RIO *io, ut32 bin_id) {
 	SdbList *secs;
 	SdbListIter *iter;
 	RIOSection *sec;
@@ -388,8 +388,8 @@ R_API bool r_io_section_priorize_bin(RIO *io, ut32 bin_id) {
 		return false;
 	}
 	ls_foreach (secs, iter, sec) {
-		r_io_map_priorize (io, sec->filemap);
-		r_io_map_priorize (io, sec->memmap);
+		r_io_map_prioritize (io, sec->filemap);
+		r_io_map_prioritize (io, sec->memmap);
 	}
 	ls_free (secs);
 	return true;
