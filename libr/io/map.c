@@ -9,137 +9,54 @@
 
 #define END_OF_MAP_IDS  0xffffffff
 
-#define MAP_USE_HALF_CLOSED 0
-
-struct map_event_t {
-	RIOMap *map;
-	ut64 addr;
-	int id; // distinct priority in [0, len(maps))
-	bool is_to;
-};
-
-// Sort by address, (addr, is_to) precedes (addr, !is_to)
-static int _cmp_map_event(const void *a_, const void *b_) {
-	struct map_event_t *a = (void *)a_, *b = (void *)b_;
-	ut64 addr0 = a->addr - a->is_to, addr1 = b->addr - b->is_to;
-	if (addr0 != addr1) {
-		return addr0 < addr1 ? -1 : 1;
+static int r_io_map_cmp_map_by_id(const RIOMap *a, const RIOMap *b) {
+	if (a->id < b->id) {
+		return -1;
+	} else if (a->id > b->id) {
+		return 1;
+	} else {
+		return 0;
 	}
-	return a->is_to - b->is_to;
-}
-
-static int _cmp_map_event_by_id(const void *a_, const void *b_) {
-	struct map_event_t *a = (void *)a_, *b = (void *)b_;
-	return a->id - b->id;
-}
-
-// Precondition: from == 0 && to == 0 (full address) or from < to
-static bool _map_skyline_push(RVector *map_skyline, ut64 from, ut64 to, RIOMap *map) {
-	RIOMapSkyline *part = R_NEW (RIOMapSkyline), *part1;
-	if (!part) {
-		return false;
-	}
-	part->map = map;
-	part->itv.addr = from;
-	part->itv.size = to - from;
-	if (!from && !to) {
-		// Split to two maps
-		part1 = R_NEW (RIOMapSkyline);
-		if (!part1) {
-			return false;
-		}
-		part1->map = map;
-		part1->itv.addr = part->itv.size = UT64_MAX;
-		part1->itv.size = 1;
-		if (!r_vector_push (map_skyline, part1)) {
-			free (part1);
-		}
-	}
-	if (!r_vector_push (map_skyline, part)) {
-		free (part);
-		return false;
-	}
-	return true;
 }
 
 // Store map parts that are not covered by others into io->map_skyline
 R_API void r_io_map_calculate_skyline(RIO *io) {
-	SdbListIter *iter;
-	RIOMap *map;
-	RVector events = {0};
-	RBinHeap heap;
-	struct map_event_t *ev;
-	bool *deleted = NULL;
-	r_vector_clear (&io->map_skyline, free);
-	if (!r_vector_reserve (&events, ls_length (io->maps) * 2) ||
-			!(deleted = calloc (ls_length (io->maps), 1))) {
-		goto out;
+	if (io->skyline_ctx) {
+		r_skyline_free(io->skyline_ctx);
 	}
 
-	int i = 0;
-	ls_foreach (io->maps, iter, map) {
-		if (!(ev = R_NEW (struct map_event_t))) {
-			goto out;
-		}
-		ev->map = map;
-		ev->addr = map->itv.addr;
-		ev->is_to = false;
-		ev->id = i;
-		r_vector_push (&events, ev);
-		if (!(ev = R_NEW (struct map_event_t))) {
-			goto out;
-		}
-		ev->map = map;
-		ev->addr = r_itv_end (map->itv);
-		ev->is_to = true;
-		ev->id = i;
-		r_vector_push (&events, ev);
-		i++;
-	}
-	r_vector_sort (&events, _cmp_map_event);
+	r_vector_clean(&(io->map_skyline), free);
 
-	r_binheap_init (&heap, _cmp_map_event_by_id);
-	ut64 last;
-	RIOMap *last_map = NULL;
-	for (i = 0; i < events.len; i++) {
-		ev = events.a[i];
-		if (ev->is_to) {
-			deleted[ev->id] = true;
-		} else {
-			r_binheap_push (&heap, ev);
-		}
-		while (!r_binheap_empty (&heap) && deleted[((struct map_event_t *)r_binheap_top (&heap))->id]) {
-			r_binheap_pop (&heap);
-		}
-		ut64 to = ev->addr;
-		map = r_binheap_empty (&heap) ? NULL : ((struct map_event_t *)r_binheap_top (&heap))->map;
-		if (!i) {
-			last = to;
-			last_map = map;
-		} else if (last != to || (!to && ev->is_to)) {
-			if (last_map != map) {
-				if (last_map && !_map_skyline_push (&io->map_skyline, last, to, last_map)) {
-					break;
-				}
-				last = to;
-				last_map = map;
-			}
-			if (!to && ev->is_to) {
-				if (map) {
-					(void)_map_skyline_push (&io->map_skyline, last, to, map);
-				}
-				// This is a to == 2**64 event. There are no more skyline parts.
-				break;
-			}
-		} else if (map && (!last_map || map->id > last_map->id)) {
-			last_map = map;
-		}
+	io->skyline_ctx = r_skyline_new();
+
+	RVector *ranges = r_vector_new();
+
+	ls_foreach(io->maps, iter, map) {
+		RSkylineURange *ur = R_NEW0(RSkylineUserData);
+
+		ur->from = map->itv.addr;
+		ur->to = map->itv.end;
+		ur->data = map;
+
+		r_vector_push(ranges, ur);
 	}
 
-	r_binheap_clear (&heap, NULL);
-out:
-	r_vector_clear (&events, free);
-	free (deleted);
+	r_skyline_init(io->skyline_ctx, ranges, r_io_map_cmp_map_by_id);
+
+	r_vector_clear(ranges, free);
+
+	RSkylineIter *it;
+	it = r_skyline_begin(io->skyline_ctx);
+	while (it != r_skyline_end(io->skyline_ctx)) {
+		RSkylineUserData * ud = r_skyline_get_data_with_highest_priority(it);
+
+		RIOMapSkyline * ms = R_NEW0(RIOMapSkyline);
+		ms->itv->addr = ud->from;
+		ms->itv->end = ud->to;
+		ms->map = ud->data;
+
+		r_vector_push(&(io->map_skyline), ms);
+	}
 }
 
 R_API RIOMap* r_io_map_new(RIO* io, int fd, int flags, ut64 delta, ut64 addr, ut64 size, bool do_skyline) {
@@ -201,6 +118,7 @@ R_API void r_io_map_init(RIO* io) {
 			r_id_pool_free (io->map_ids);
 		}
 		io->map_ids = r_id_pool_new (1, END_OF_MAP_IDS);
+		r_vector_init(&(io->map_skyline));
 	}
 }
 
@@ -411,7 +329,9 @@ R_API void r_io_map_fini(RIO* io) {
 	io->maps = NULL;
 	r_id_pool_free (io->map_ids);
 	io->map_ids = NULL;
-	r_vector_clear (&io->map_skyline, free);
+
+	r_skyline_free(io->skyline_ctx);
+	r_vector_clear(&(io->map_skyline), free);
 }
 
 R_API void r_io_map_set_name(RIOMap* map, const char* name) {

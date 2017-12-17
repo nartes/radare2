@@ -45,10 +45,17 @@ typedef struct r_skyline_ctx_t {
 	st64 lru_subrange_pos;
 } RSkylineCtx;
 
+typedef RSkylineSlSubrange * RSkylineIter;
+typedef r_skyline_sl_subrange_t r_skyline_iter_t;
+
 R_API RSkylineCtx *r_skyline_new(void);
 R_API bool r_skyline_init(RSkylineCtx *ctx, RVector *ranges, RVectorComparator* cmp);
 R_API bool r_skyline_free(RSkylineCtx *ctx);
 R_API RSkylineURange *r_skyline_get_range_by_offset_with_highest_priority(RSkylineCtx *ctx, ut64 off);
+R_API int r_skyline_cmp_iter_by_off(const RSkylineIter *a, const RSkylineIter *b);
+R_API RSkylineIter *r_skyline_begin(RSkylineCtx *ctx);
+R_API RSkylineIter *r_skyline_end(RSkylineCtx *ctx);
+R_API void *r_skyline_get_data_with_highest_priority(RSkylineIter *iter);
 
 #ifdef __cplusplus
 }

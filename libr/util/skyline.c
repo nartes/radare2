@@ -452,3 +452,33 @@ err:
 out:
 	return urange;
 }
+
+RSkylineIter *r_skyline_begin(RSkylineCtx *ctx) {
+	if (!ctx) {
+		return 0;
+	}
+
+	return (RSkylineIter **)(ctx->subranges->a)[0];
+}
+
+RSkylineIter *r_skyline_end(RSkylineCtx *ctx) {
+	if (!ctx) {
+		return 0;
+	}
+
+	return (RSkylineIter **)(ctx->subranges->a)[ctx->subranges->len];
+}
+
+void *r_skyline_get_urange_with_highest_priority(RSkylineIter *iter) {
+	if (!iter) {
+		return 0;
+	}
+
+	RSkylineURange ur = R_NEW0(RSkylineURange);
+	RSkylineSRange sr = (RSkylineSRange **((RSkylineSlSubrange *)(iter)->ranges)->a)[0];
+	ur->from = sr->from;
+	ur->to = sr->to;
+	ur->data = sr->user_data->data;
+
+	return ur;
+}

@@ -7,6 +7,7 @@
 #include "r_socket.h"
 #include "r_util.h"
 #include "r_vector.h"
+#include "r_util/r_skyline.h"
 
 #define R_IO_READ	4
 #define R_IO_WRITE	2
@@ -74,7 +75,6 @@ typedef struct r_io_t {
 	RIDPool *sec_ids;
 	RIDPool *map_ids;
 	SdbList *maps; //from tail backwards maps with higher priority are found
-	RVector map_skyline; // map parts that are not covered by others
 	//SdbList *sections;
 	RIDStorage *files;
 	RCache *buffer;
@@ -90,6 +90,8 @@ typedef struct r_io_t {
 	int (*cb_core_cmd)(void *user, const char *str);
 	char* (*cb_core_cmdstr)(void *user, const char *str);
 	void (*cb_core_post_write)(void *user, ut64 maddr, ut8 *orig_bytes, int orig_len);
+	RSkylineCtx *skyline_ctx;
+	RVector map_skyline;
 } RIO;
 
 typedef struct r_io_desc_t {
@@ -489,8 +491,8 @@ R_API bool r_io_use_fd (RIO *io, int fd);
 #define r_io_range_free(x)	free(x)
 
 /* io/ioutils.c */
-//R_API bool r_io_create_mem_map(RIO *io, RIOSection *sec, ut64 at, bool null, bool do_skyline);
-//R_API bool r_io_create_file_map(RIO *io, RIOSection *sec, ut64 size, bool patch, bool do_skyline);
+R_API bool r_io_create_mem_map(RIO *io, RIOSection *sec, ut64 at, bool null, bool do_skyline);
+R_API bool r_io_create_file_map(RIO *io, RIOSection *sec, ut64 size, bool patch, bool do_skyline);
 //R_API bool r_io_create_mem_for_section(RIO *io, RIOSection *sec);
 R_API bool r_io_is_valid_offset (RIO *io, ut64 offset, int hasperm);
 R_API bool r_io_addr_is_mapped(RIO *io, ut64 vaddr);
